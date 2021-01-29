@@ -1,0 +1,45 @@
+---
+params:
+  new_title: "Total Support v.s. ECBL Comparison Analysis"
+title: "`r params$new_title`"
+author: "Hilary Lai"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: slidy_presentation
+---
+## Data Information
+
+Purchase backlog: as of `r (Sys.Date()-2) %>% format("%Y/%m/%d")`  
+ECBL & inventory: as of wk `r (year(Sys.Date())+1)*10``r as.numeric(Sys.Date() - as.Date("2020-11-01")) %/% 7 + 1`  
+CRD (13-wk): as of `r (Sys.Date() + 85) %>% format("%Y/%m/%d")`  
+
+## Support v.s. ECBL Qty by Type
+```{R bar_plot, results=T, echo=F}
+print(myplot2[[v]])
+```
+
+* Only shows parts with Deficient Value > $30 K
+* Deficient Value ($) = OD to 13-Wk ECBL Value  - Total Support Value  
+* Types include FCST and FIRM  
+* ECBL Qty: Only includes ECBL from delinquent to 13-Wk CRD
+
+## Support % of Each Part with Deficient Value > $30 K
+```{R lollipop_plot, results=T, echo=F}
+print(plot.l[[v]])
+```
+
+* Only shows parts with Deficient Value > $30 K  
+* Deficient Value ($) = OD to 13-Wk ECBL Value  - Total Support Value  
+* Support % = (ADI Backlog + Inventory + In Transit Qty) / (Delinquent to 13-wk ECBL Qty) (%)
+
+## Support v.s. ECBL Qty Scatter Plot
+```{R scatter_plot, results=T, echo=F}
+print(myplot[[v]])
+```
+
+* Points above the line: Sufficient Qty to support ECBL demand  
+* Points below the line: Deficient Qty (Not enough ADI backlog or ECBL needs to push out)  
+* **Total Support Qty** = ADI Backlog + Inventory + In Transit Qty  
+* Colored points indicate parts with **total deficient Value > $30 K**  
+* ECBL Qty: Only includes ECBL from delinquent to 13-Wk CRD
+
+
