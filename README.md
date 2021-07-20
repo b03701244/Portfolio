@@ -14,4 +14,4 @@ R Markdown report using machine learning algorithms for BMS using the impedance 
 ## 4. Power BI Dashboards for Management
 * [Data Model Screenshot](PowerBI_Management/Data_Model.png "DM Png")
 * [Dashboards Scrrenshot] (PowerBI_Management/PowerBI_Management.pdf "PBI PDF")
-*** (from p. 8 are tooltips, which are shown after hovering to visuals)
+** (from p. 8 are tooltips, which are shown when hovering over visuals)
