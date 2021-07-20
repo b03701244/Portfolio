@@ -12,5 +12,6 @@ Built a linear regression model to find out the relationship between revenue and
 R Markdown report using machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest.
 
 ## 4. Power BI Dashboards for Management
-* [Data Model Screenshot](PowerBI_Management/Data_Model.pdf "DM PDF")
-* [Dashboards Scrrenshot(from p. 8 are tooltips, which are shown after hovering to visuals)] (PowerBI_Management/PowerBI_Management.pdf "PBI PDF")
+* [Data Model Screenshot](PowerBI_Management/Data_Model.png "DM Png")
+* [Dashboards Scrrenshot] (PowerBI_Management/PowerBI_Management.pdf "PBI PDF")
+*** (from p. 8 are tooltips, which are shown after hovering to visuals)
