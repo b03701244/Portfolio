@@ -8,5 +8,5 @@ Explore the relationships between end customer backlog to distributors and their
 Built a linear regression model to find out the relationship between revenue and sales members' estimated PAV (Peak Annual Value) per opportunity, as well as other variables.
 
 
-## 3. [Battery Impedance ML Experiment](ML/Battery_Models.pdf "ML PDF")
+## 3. [Battery Impedance ML Experiment](ML/Reg_Report.pdf "ML PDF")
 R Markdown report using machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest.
