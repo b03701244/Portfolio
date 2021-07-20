@@ -1,0 +1,288 @@
+---
+title: "Regression Analysis for Open Pipeline & Revenue"
+output: rmarkdown::github_document
+author: Hilary Lai
+date: 2020-08-13
+---
+
+```{r data, include=T}
+library(readr)
+library(tidyverse)
+library(knitr)
+library(lubridate)
+options(digits=2)
+options(scipen = 1)
+
+#get the open peak annual value file downloaded from QV
+open.pav <- read_csv("open_pav.csv", col_types = cols(Snapshot_Month = col_date(format = "%m/%d/%Y")))[,-7] %>%
+  mutate(Fiscal_Mth = year(Snapshot_Month) * 100 + month(Snapshot_Month))
+rev <- read_csv("rev_by_mth.csv") 
+#align director and region
+rev <- rev %>%
+  mutate(Director = case_when(
+      rev$Director == "Hong, SK" ~ "SHONG",
+      rev$Director == "Hsu, Eric" ~ "EHSU2",
+      rev$Director == "JD Kang" ~ "JKANG2",
+      rev$Director == "Ted Park" ~ "TPARK",
+      rev$Director == "Wan, Daryl" ~ "MWAN"),
+      Region = case_when(
+        Region == "Asean" ~ "AS",
+        Region == "Australia" ~ "AL",
+        Region == "India" ~ "IN",
+        Region == "Korea" ~ "KR",
+        Region == "Taiwan" ~ "TA"))
+
+#fix revenue format
+rev$Revenue <- gsub("[(]", "-", rev$Revenue)
+rev$Revenue <- gsub("[),$]", "", rev$Revenue)
+
+#summarise revenue by variables
+rev <-  rev %>%
+  group_by(End_Mkt_Segment, Fiscal_Mth, Director, Region, BU) %>%
+  dplyr::summarise(Revenue = sum(as.numeric(Revenue)))
+
+#align column names
+names(open.pav)[c(3,5)] <- c("End_Mkt_Segment", "BU")
+dat <- full_join(rev, open.pav[,-6]) %>%
+  filter(Fiscal_Mth >= 201811 & Fiscal_Mth <= 202007)
+dat[is.na(dat)] <- 0
+dat <- dat %>%
+  filter(log(Revenue)>0, log(PAV)>0)
+```
+# Dataset
+
+The dataset I use combines each year's snapshot of the **Peak Annual Value (PAV)** for open pipeline, with each year's **revenue value**.
+
+The dataset contains the following fields:
+
+* Fiscal month
+* Director
+* PAV
+* Revenue
+
+A partial look of part of the dataset:
+
+```{r table, echo=T}
+library(knitr)
+#get the final table
+options(knitr.kable.NA = '')
+kable(head(dat))
+```
+
+Thus, we can assume there is a linear relationship between the 2 variables.
+
+# ANOVA (Analysis of Variance) with all Variables
+
+Next, I run an ANOVA analysis with $PAV^{(0.1)}$ as the dependent variable, and $ln{(Revenue)}^2$, BU, Region, and End Customer Segment as independent variables. The goal is to see whether there are differences in the means of Revenue value between each variable.
+
+*Note:*
+
+*1. To keep all values positive for transformation, I only included data with PAV & Revenue > 0. The purpose of keeping all values positive is to keep the distribution of variables normal, so that it meets model requirements for regression analysis.*
+
+*2. The 0.1 comes from Box-Cox Transformation of data. The purpose is to make data normal in order to meet the requirements for linear regression analysis. We will use this value from now on.*
+
+*3. The reason I use $ln{(PAV)}^2$ instead of $ln{(PAV)}$, is that the transformation makes the relationship look more linear. Hence, I suspect there is a relationship between the 2 variables.*
+
+```{r plot.diff, include=F, echo=T}
+library(cowplot)
+library(ggplot2)
+
+#compare plots with different x
+plot.1 <- ggplot(dat, aes(log(dat$Revenue), (dat$PAV)^0.1)) +
+  geom_point(size=0.25) +
+  xlab("ln(Revenue)") +
+  ylab("PAV^(0.1)")+
+  ggtitle("ln(Revenue)")
+plot.2 <- ggplot(dat, aes(log(dat$Revenue)^2, (dat$PAV)^0.1)) +
+  geom_point(size=0.25) +
+  xlab("ln(Revenue)^2") +
+  ylab("PAV^(0.1)")+
+  ggtitle("ln(Revenue)^2")
+plot.3 <- ggplot(dat, aes(log(dat$Revenue)^3, (dat$PAV)^0.1)) +
+  geom_point(size=0.25) +
+  xlab("ln(Revenue)^3") +
+  ylab("PAV^(0.1)")+
+  ggtitle("ln(Revenue)^3")
+```
+
+```{r show.plot, echo=T, include=T}
+plot_grid(plot.1, plot.2, plot.3, ncol = 3)
+```
+
+```{r anova, echo=T, include=F}
+library(car)
+library(gridExtra)
+options(scipen = 1)
+model <- lm(PAV ~ I((log(Revenue))^2) + End_Mkt_Segment + Director + BU, dat)
+
+#get the boxcox value
+bc <- boxCox(model)
+lamb <- round(bc$x[which.max(bc$y)],2)
+
+#linear model with all data
+dat.fit <- lm(PAV^lamb ~  I((log(Revenue))^2) + End_Mkt_Segment + Director + BU, dat)
+```
+
+## Results:
+
+```{r anova.show, echo=T, include=T}
+#show the summary results
+summary.aov(dat.fit)
+```
+
+As shown, all variables have significant F values (p-vale < 0.001). Therefore, we can say that **there is enough evidence that the means of $(Revenue)^{(0.1)}$ differ between different market segments, directors, and PAV values.**
+
+# Linear Regression Model A: 4 independent and 1 dependent variables
+
+Next, I run linear regression analysis for each variable, including director, BU, and end market segment. The reason I did not use Region is that it is correlated to Director, which would violate linear regression requirements.
+
+The linaer model should look something like this:
+
+### $(PAV)^{(0.1)}$ = `r "$\\beta_0$"` + `r "$\\beta_1$"` * $\ln(Revenue)^2$ + ... + `r "$\\epsilon$"`
+
+*Note: `r "$\\epsilon$"` = Error variable, `r "$\\beta_0$"` = intercept.*
+
+## Results (A):
+```{r plot.fit, echo=T, include = T}
+summary(dat.fit)
+```
+
+The model has an adjusted $R^2$ value of 0.60, which means that it is quite useful (60% of data can be represented by the equation). Hence, we can use it for forecasting current PAV given a revenue value.
+
+Hence, we can get the equation: 
+
+**$(PAV)^{(0.1)}$ = (`r dat.fit$coefficients[1]`) + (`r dat.fit$coefficients[2]`) * $\ln(Revenue)^2$ + (`r dat.fit$coefficients[3]`) * (ASD) + (`r dat.fit$coefficients[4]`) * (AUT) + (`r dat.fit$coefficients[5]`) * (COM) + (`r dat.fit$coefficients[6]`) * (CON) +(`r dat.fit$coefficients[7]`) * (DHC) + (`r dat.fit$coefficients[8]`) * (INS) +(`r dat.fit$coefficients[9]`) * (JKANG2) + (`r dat.fit$coefficients[10]`) * (MWAN) +(`r dat.fit$coefficients[11]`) * (SHONG) +(`r dat.fit$coefficients[12]`) * (TPARK) + (`r dat.fit$coefficients[13]`) * (AEGTG) + (`r dat.fit$coefficients[14]`) * (AEITG) + (`r dat.fit$coefficients[15]`) * (CHNTG) + (`r dat.fit$coefficients[16]`) * (COMTG) + (`r dat.fit$coefficients[17]`) * (CSTG) + (`r dat.fit$coefficients[18]`) * (DHCTG) + (`r dat.fit$coefficients[19]`) * (OTH) + (`r dat.fit$coefficients[20]`) * (PPGTG) + (`r dat.fit$coefficients[21]`) * (PTPTG)**
+
+*Note: For both director and segment categories, they are presented as dummy variables (either 0 or 1). For example: if Director = Daryl, then MWAN = 1, JKANG2 = SHONG = TPARK = 0.*
+
+## Regression Plots (A)
+
+We can draw regression lines using the model above.
+
+### By Director
+
+```{r plot.dir, echo=T, include=T}
+
+#plot by director
+plot.dir <- dat %>%
+  ggplot(aes(x = log(Revenue)^2 , y = PAV^lamb, color = Director)) +
+  geom_point(size = 0.3) +
+   xlab("ln(Revenue)^2")+
+  ylab("PAV^(0.1)")+
+  ggtitle("Regression Plot by Director") +
+  stat_smooth(method = "lm", aes(fill = Director), se=FALSE, fullrange=TRUE)
+plot.dir
+```
+
+### By Segment
+
+```{r plot.seg, echo=T, include=T}
+
+#plot by segment
+plot.seg <- dat %>%
+  ggplot(aes(x = log(Revenue)^2 , y = PAV^lamb, color = End_Mkt_Segment)) +
+  geom_point(size = 0.3) +
+   xlab("ln(Revenue)^2")+
+  ylab("PAV^(0.1)")+
+    ggtitle("Regression Plot by Segment") +
+  stat_smooth(method = "lm", aes(fill = End_Mkt_Segment), se=FALSE, fullrange=TRUE)
+plot.seg
+```
+
+### By Region
+
+```{r plot.reg, echo=T, include=T}
+
+#plot by region
+plot.reg <- dat %>%
+  ggplot(aes(x = log(Revenue)^2, y = PAV^lamb, color = Region)) +
+  geom_point(size = 0.3) +
+   xlab("ln(Revenue)^2")+
+  ylab("PAV^(0.1)")+
+    ggtitle("Regression Plot by Region") +
+  stat_smooth(method = "lm", aes(fill = Region), se=FALSE, fullrange=TRUE)
+plot.reg
+```
+
+# Linear Regression Model B: 1 independent and 1 dependent variables
+
+To simplify the model, let's only use $\ln(Revenue)^2$ and $(PAV)^{0.1}$ as prediction.
+
+## Results (B):
+
+```{r goal.fit, echo=T, include=T}
+goal.tbl <- read_csv("goal_seg_reg.csv") #read again
+goal <- goal.tbl[[3]]
+options(scipen=1)
+
+goal.fit <- lm(PAV^lamb ~ I((log(Revenue))^2), dat)
+summary(goal.fit)
+```
+
+As shown, there is strong evidence to show that there exists a linear relationship between $\ln(Revenue)^2$ and $PAV^{0.1}$. Also, about 52% of data can be explained by the model.
+
+We get the equation: $(PAV)^{(0.1)}$ = `r goal.fit$coefficients[1]` + `r goal.fit$coefficients[2]` * $\ln(Revenue)^2$.
+
+## Regression Plot (B)
+
+And the plot is shown below:
+
+```{r plot.goal, echo=T, include=T}
+plot.goal <- dat %>%
+  ggplot(aes(x = log(Revenue)^2 , y = PAV^lamb)) +
+  geom_point(size = 0.3) +
+   xlab("ln(Revenue)^2")+
+  ylab("PAV^(0.1)")+
+  ggtitle("Regression Plot") +
+  stat_smooth(method = "lm", se=FALSE, fullrange=TRUE)
+plot.goal
+```
+
+# Forecast and Predictions
+
+## 1. Example A: Revenue Forecast for a given PAV with Multiple Settings
+
+#### **In March 2019, an open pipeline snapshot for SK as director, PTPTG as BU, and COM as segment has a total PAV snapshot value of $20M. How would the revenue be like?**
+
+To calculate the revenue, we can apply the formula from **Model A**:
+
+$(20000000)^{(0.1)}$ = (`r dat.fit$coefficients[1]`) + (`r dat.fit$coefficients[2]`) * $\ln(Revenue)^2$ + (`r dat.fit$coefficients[3]`) * 0 + (`r dat.fit$coefficients[4]`) * 0 + (`r dat.fit$coefficients[5]`) * 1 + (`r dat.fit$coefficients[6]`) * 0 +(`r dat.fit$coefficients[7]`) * 0 +(`r dat.fit$coefficients[8]`) * 0 +(`r dat.fit$coefficients[9]`) * 0 + (`r dat.fit$coefficients[10]`) * 0 +(`r dat.fit$coefficients[11]`) * 1 +(`r dat.fit$coefficients[12]`) * 0 + (`r dat.fit$coefficients[13]`) * 0 + (`r dat.fit$coefficients[14]`) * 0 + (`r dat.fit$coefficients[15]`) * 0 + (`r dat.fit$coefficients[16]`) * 0 + (`r dat.fit$coefficients[17]`) * 0 + (`r dat.fit$coefficients[18]`) * 0 + (`r dat.fit$coefficients[19]`) * 0 + (`r dat.fit$coefficients[20]`) * 1 + (`r dat.fit$coefficients[21]`) * 0
+
+As a result, the revenue forecast would be **$1,202,604**.
+
+## 2. Example B: Get Predicted PAV to achieve Revenue Goals.
+
+#### **For 2021, there is a revenue goal for each segment and region.**
+
+To calculate the PAV we need in order to achieve the goals, we use the equation from **Model B**:
+
+$(PAV)^{(0.1)}$ = `r goal.fit$coefficients[1]` + `r goal.fit$coefficients[2]` * $\ln(Revenue)^2$.
+
+Next, we put in all the revenue goal numbers in the equation, and we can get the table below:
+
+```{r goal.pred, echo=T, include=F}
+options(scipen=999)
+PAV.pred <- c()
+
+for(i in 1:35){
+  PAV.pred[i] <- (goal.fit$coefficients[1] + goal.fit$coefficients[2] * log(goal[i])^2)^(1/lamb)
+}
+
+pred.tbl <- goal.tbl %>%
+  cbind(PAV.pred)
+names(pred.tbl)[4] <- "Expected_PAV"
+```
+```{r goal.table, echo=T, include=T}
+options(knitr.kable.NA = "")
+pred.tbl <- pred.tbl %>%
+  add_row(`Region (DAR)`= "Total", FY21E = sum(as.numeric(pred.tbl$FY21E)), Expected_PAV = as.numeric(sum(pred.tbl$Expected_PAV)))
+pred.tbl$FY21E <-  pred.tbl$FY21E %>%
+  format(big.mark=",")
+pred.tbl$Expected_PAV <-  pred.tbl$Expected_PAV %>%
+  format(big.mark=",")
+
+kable(pred.tbl)
+```
+
+In sum, there is a total of 2.8B for the revenue goals to be achieved.
+
