@@ -1,0 +1,76 @@
+---
+title: "Battery Impedance Models"
+output: rmarkdown::github_document
+---
+
+```{r data, include=FALSE}
+library(readr)
+library(tidyverse)
+library(caret)
+library(ggplot2)
+
+#read data
+dat <- read_csv("dat.csv")
+dat$Type <- as.factor(dat$Type)
+set.seed(1, sample.kind = "Rounding")
+#create 2 partitions and create 2 sets for training
+test_index <- createDataPartition(dat$Type, times=1, p=0.5, list = FALSE)
+test_set <- dat[test_index, ]
+train_set <- dat[-test_index, ]
+```
+
+# Data Outline
+
+## Our partial data looks like this:
+
+```{r head, echo = F, include = T}
+head(dat)
+```
+
+## Summary of data:
+```{r summary, echo = F, include = T}
+summary(dat)
+```
+
+## Plot of data:
+
+```{r plot, echo=F, include =T}
+dat.plot <- test_set %>%
+  ggplot(aes(Real, image, color = Type)) + geom_point() +
+  ggtitle("Battery Impedance Test Plot") + ylab("Imaginary Part") + xlab("Real Part")
+dat.plot
+```
+
+## Machine Learning Models
+
+1. KNN
+
+```{r knn, echo = T, include = T}
+train_knn <- train(Type ~ ., method = "knn", data = train_set)
+y_hat_knn <- predict(train_knn, test_set, type = "raw")
+confusionMatrix(y_hat_knn, test_set$Type)
+```
+
+Testing set accuracy as reference: `r confusionMatrix(y_hat_knn, train_set$Type)$overall[["Accuracy"]]`
+
+2. GLM
+```{r glm, echo = T, include = T}
+logistic <-  train(Type ~ ., method = "glm", data = train_set)
+log_y_hat <- predict(logistic, test_set)
+confusionMatrix(log_y_hat, test_set$Type)
+```
+
+3. Random Forest
+```{r rf, echo = T, include = T}
+#random forest
+library(randomForest)
+train_rf <- train(Type ~ ., data=train_set, method = "rf")
+y_hat_rf <- predict(train_rf, test_set)
+confusionMatrix(y_hat_rf, test_set$Type)
+```
+
+```{r comparison, echo = T, include = T}
+results <- resamples(list(KNN=train_knn, GLM=logistic, RandomForest=train_rf))
+# summarize the distributions
+summary(results)
+```
