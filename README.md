@@ -1,4 +1,4 @@
-# Data Analytics Projects - Hilary Lai
+# Data Analytics Projects
 
 ## 1. [End Customer backlog Descriptive Analysis](End_Customer_Backlog/R_Visualizations.pdf "ECBL PDF") (Slidy Presentation)
 Exploratory and descriptive analysis between end customer backlog and ADI backlog.
