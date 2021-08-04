@@ -17,6 +17,6 @@ Machine learning algorithms for BMS using the impedance test with KNN, GLM, and 
 
 ## 4. Power BI Dashboards for Management
 a.  [Data Model Screenshot](PowerBI_Management/Data_Model.png "DM Png")
-b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/PowerBI_Management/PowerBI_Management.pdf "PBI PDF")
+b. [Dashboards Partial Screenshot](https://github.com/b03701244/Portfolio/raw/main/PowerBI_Management/PowerBI_Management.pdf "PBI PDF")
 * Tooltips are shown starting from p. 9. In practice, they are only visible when users hover over visuals
 * Python Selenium is used daily to export files from QlikView Portal
