@@ -21,3 +21,9 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 * Tooltips are shown starting from p. 9. In practice, they are only visible when users hover over visuals
 * Python Selenium is used daily to export files from QlikView Portal
 * Dashboards only show 3 of all 27 pages (including tooltips) of Power BI data
+
+# Personal Projects as Interest
+
+## a. Web Scraping & Word Cloud for Philosophy Medium's [Top Articles]("https://philomedium.com/content/today")
+* [Report](Philo_Scraping/Philo_Report.html) run on 8/21/2021
+* Produces word clouds for the top articles, as well as a combined interactive word cloud
