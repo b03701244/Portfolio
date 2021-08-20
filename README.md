@@ -23,7 +23,7 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 * Dashboards only show 3 of all 27 pages (including tooltips) of Power BI data
 
 # Personal Projects
-## a. Web Scraping and Word Cloud for Philosophy Medium's Top Articles
-* [Report]("https://b03701244.github.io/Portfolio/Philo_Scraping/Philo_Report.html") run on 8/21/2021
+## a. Web Scraping and Word Cloud for Philosophy Medium's Daily [Top Articles]("https://philomedium.com/content/today")
+* [Report]("Philo_Scraping/Philo_Report.html") run on 8/21/2021
 * Produces word clouds for the top articles, as well as a combined interactive word cloud
 * rvest package
