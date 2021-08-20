@@ -10,7 +10,7 @@ A linear regression model to find out relationships between revenue and sales me
 * R Markdown presentation
 * Main packages used: ggplot2, tidyverse
 
-## 3. [Battery Impedance ML Experiment](ML/Batt_Impedance_Report.rmd "ML PDF")
+## 3. [Battery Impedance ML Experiment](ML/Battery_Models.pdf "ML PDF")
 Machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest
 * R Markdown presentation
 * Main packages used: ggplot2, tidyverse, caret
