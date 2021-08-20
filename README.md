@@ -24,6 +24,6 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 
 # Personal Projects
 ## a. Web Scraping and Word Cloud for Philosophy Medium's Top Articles
-* [Report]("Philo_Scraping/Philo_Report.html") run on 8/21/2021
+* [Report]("https://b03701244.github.io/Portfolio/docs/Philo_Report.html") run on 8/21/2021
 * Produces word clouds for the top articles, as well as a combined interactive word cloud
 * rvest package
