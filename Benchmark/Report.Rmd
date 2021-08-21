@@ -5,13 +5,10 @@ output:
   pdf_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-## Datasets Used
+## Creating Dataset
+* Merged ADI Revenue dataset with Taiwan's Machine Tools export and aligned time to ADI's Fiscal Month/Qtr
 
-### Merged ADI Revenue dataset with Taiwan's Machine Tools export and aligned time to ADI's Fiscal Month/Qtr
-```{r, echo=T, include=T, warning=FALSE}
+```{r, echo=T, include=T, warning=FALSE, message=F}
 library(tidyverse)
 library(readr)
 library(rvest)
@@ -32,6 +29,7 @@ data <- read_html(url) %>%
 table <- data %>% html_table()
 table <- table[-1,]
 colnames(table) <- c("Date", "Exports")
+Sys.setlocale("LC_ALL","Chinese")
 table <- table %>%
   separate(Date, c("CY", "CM"), "年 ") %>%
   mutate(CY = as.numeric(CY) + 1911)
@@ -54,13 +52,7 @@ summ <- DAR %>%
   gather("Type", "Value", Exports:Revenue) %>%
   na.omit()%>%
   ungroup()
-```
 
-## Machine Tools Export vs. ADI DAR Revenue Plot
-
-### 1. By Fiscal Month
-
-```{r mth, echo=F, include=T}
 #make month discreet
 summ$Fiscal_Mth <- summ$Fiscal_Mth %>%
   ordered(levels = unique(summ$Fiscal_Mth))
@@ -71,12 +63,6 @@ plot.mth <- summ %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   xlab("Fiscal_Mth")
 
-print(plot.mth)
-```
-
-### 2. By Fiscal Quarter
-
-```{r qtr, echo=F, include=T}
 qtr_data <- summ %>%
   dplyr::group_by(FQ, Type)%>%
   dplyr::summarise(Value = sum(Value)) %>%
@@ -90,7 +76,125 @@ plot.qtr <- qtr_data %>%
   geom_line(size = 1) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   xlab("Fiscal_Qtr")
-
-plot.qtr
 ```
 
+## Machine Tools Export vs. ADI DAR Revenue Plot
+
+### 1. By Fiscal Month
+
+![By Fiscal Month](plots/mth.png)
+
+### 2. By Fiscal Quarter
+
+![By Fiscal Quarter](plots/qtr.png)
+
+## Alternative method: Growth % as value
+
+```{r, include=T, warning=F, message=F}
+library(zoo)
+
+change_summ <- summ %>%
+  group_by(Type, Fiscal_Mth) %>%
+  summarise(Value = sum(Value)) %>%
+  arrange(desc(Fiscal_Mth), .by_group = TRUE) %>%
+  mutate(Delta = (Value - lead(Value))/lead(Value)*100)
+#before smoothing
+bf_mth <- change_summ %>%
+  ggplot(aes(x=factor(Fiscal_Mth), y=Delta, group = Type, color = Type)) + 
+  geom_line(size = 1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("Fiscal_Mth")
+
+#calculate rm
+change_summ$Delta_ra <- rollmean(change_summ$Delta,6, fill=NA)
+
+change_summ2 <- change_summ %>%
+  group_by(Fiscal_Mth, Type) %>%
+  summarise(Delta_ra = mean(Delta_ra))%>%
+  spread(Type, Delta_ra, fill = 0)
+
+#after smoothing
+af_mth <- change_summ2 %>%
+  ggplot()+
+  geom_line(aes(x=factor(Fiscal_Mth), y=Exports, group = 1, color = "Exports"), size=1) + 
+  geom_line(aes(x=factor(Fiscal_Mth), y=Revenue, group = 1, color = "Revenue"), size=1) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("Fiscal_Mth") +
+  ylab("Change%")
+
+af_mth_reg <- ggplot(change_summ2, aes(y=Exports, x=Revenue))+
+  geom_point() +
+  geom_smooth(method="lm")  +
+  xlab("Export Change%") +
+  ylab("Revenue Change%")
+
+#by qtr
+change_summ2 <- summ %>%
+  group_by(Type, FQ) %>%
+  summarise(Value = sum(Value)) %>%
+  arrange(desc(FQ), .by_group = TRUE) %>%
+  mutate(Delta = (Value - lead(Value))/lead(Value)*100)
+
+#before smoothing
+bf_qtr <- change_summ2 %>%
+  ggplot(aes(x=factor(FQ), y=Delta, group = Type, color = Type)) + 
+  geom_line(size = 1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("FQ")
+
+#calculate rm mth
+change_summ2$Delta_ra <- rollmean(change_summ2$Delta,6, fill=NA)
+
+change_summ2 <- change_summ2 %>%
+  na.omit() %>%
+  group_by(FQ, Type) %>%
+  dplyr::summarise(Delta_ra = mean(Delta_ra))
+
+#after smoothing mth
+af_qtr <- change_summ2 %>%
+  ggplot(aes(x=factor(FQ), y=Delta_ra, group = Type, color = Type)) + 
+  geom_line(size = 1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("FQ") +
+  ylab("Change%")
+```
+
+### 1. Monthly Growth % Plot Before Rolling Mean Smoothing
+
+![By Fiscal Month](plots/bf_mth.png)
+
+### 2. Quarterly Growth % Plot Before Rolling Mean
+
+![By Fiscal Month](plots/bf_qtr.png)
+
+### 3. Monthly Growth % Plot After Rolling Mean
+
+![By Fiscal Month](plots/af_mth.png)
+
+### 4. Quarterly Growth % Plot After Rolling Mean
+
+![By Fiscal Month](plots/af_qtr.png)
+
+There seems to be correlation between the 2 variables. Let's do a linear regression test to check for significance.
+
+### 4-1. Linear Regression
+
+```{r lm, include=T, warning=F, message=F}
+
+lm_change <- change_summ2 %>%
+  spread(Type, Delta_ra) %>%
+  .[,-1] %>%
+  as.data.frame()
+
+af_qtr_reg <- lm_change %>%
+  ggplot(aes(x=Revenue, y=Exports)) + 
+  geom_point(size = 1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  geom_smooth(method="lm") +
+  xlab("Revenue Change %") +
+  ylab("Exports Change %")
+```
+
+The regression plot would look like this:
+
+![By Fiscal Month](plots/reg_line.png)
