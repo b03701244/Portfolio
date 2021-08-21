@@ -1,17 +1,17 @@
 # Data Analytics Projects
 
-## 1. [End Customer backlog Descriptive Analysis](End_Customer_Backlog/R_Visualizations.pdf "ECBL PDF") (Slidy Presentation)
-Exploratory and descriptive analysis between end customer backlog and ADI backlog
-* R Markdown presentation
+## 1. [End Customer backlog Report](End_Customer_Backlog/R_Visualizations.pdf "ECBL PDF")
+**Exploratory and descriptive analysis between end customer backlog and ADI backlog**
+* R Markdown (Slidy Presentation)
 * Main packages used: ggplot2, tidyverse
 
 ## 2. [Pipeline to Revenue Linear Regression Model](Pipeline_Revenue_Regression/Reg_Report.pdf "Regression Report PDF")
-A linear regression model to find out relationships between revenue and sales members' estimated PAV (Peak Annual Value) per opportunity, as well as other variables
+**A linear regression model to find out relationships between revenue and sales members' estimated PAV (Peak Annual Value) per opportunity, as well as other variables**
 * R Markdown presentation
 * Main packages used: ggplot2, tidyverse
 
-## 3. [Battery Impedance Machine Learning Experiment](ML/Battery_Models.pdf "ML PDF")
-Machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest
+## 3. [Battery Impedance Machine Learning Experiment Report](ML/Battery_Models.pdf "ML PDF")
+**Machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest**
 * R Markdown presentation
 * Main packages used: ggplot2, tidyverse, caret
 
@@ -22,8 +22,8 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 * Python Selenium is used daily to export files from QlikView Portal
 * Dashboards only show 3 of all 27 pages (including tooltips) of Power BI data
 
-## 5.[Machine Tools & Revenue](https://b03701244.github.io/Portfolio/Benchmark/Report.html)
-Web Scraping, Analytics, and Visualizations
+## 5.[Machine Tools & Revenue Report](https://b03701244.github.io/Portfolio/Benchmark/Report.html)
+**Web Scraping, Analytics, and Visualizations**
 * (Ongoing Project)
 * Comparing Asia Pacific's revenue to Taiwan Machine Tools Export
 * Main packages used: rvest, tidyverse
