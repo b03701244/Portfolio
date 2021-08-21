@@ -7,7 +7,7 @@
 * Main packages used: ggplot2, tidyverse
 * Sensitive information excluded from folder
 
-## 2. [Pipeline to Revenue Linear Regression Model]((https://b03701244.github.io/Portfolio/Pipeline_Revenue_Regression/Reg_Report.html)
+## 2. [Pipeline to Revenue Linear Regression Model](https://b03701244.github.io/Portfolio/Pipeline_Revenue_Regression/Reg_Report.html)
 **A linear regression model to find out relationships between revenue and sales members' estimated PAV (Peak Annual Value) per opportunity, as well as other variables**
 * R Markdown presentation
 * Main packages used: ggplot2, tidyverse
