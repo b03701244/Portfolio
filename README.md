@@ -29,7 +29,8 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 * Main packages used: rvest, tidyverse
 
 # Personal Projects
-## a. Web Scraping and Word Cloud for Philosophy Medium's Daily [Top Articles](https://philomedium.com/content/today)
-* [Report](https://b03701244.github.io/Portfolio/Philo_Scraping/Philo_Report.html) run on 8/21/2021
+## a. [Philosophy Word Cloud Report](https://b03701244.github.io/Portfolio/Philo_Scraping/Philo_Report.html)
+**Web Scraping and Word Cloud for Philosophy Medium's Daily [Top Articles](https://philomedium.com/content/today)**
+* run on 8/21/2021
 * Produces word clouds for the top articles, as well as a combined interactive word cloud
 * Main packages used: rvest, tidyverse, wordcloud, wordcloud2
