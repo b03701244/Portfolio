@@ -13,7 +13,7 @@
 * Main packages used: ggplot2, tidyverse
 * Sensitive information excluded from folder
 
-## 3. [Battery Impedance Machine Learning Experiment Report](ML/Battery_Models.pdf "ML PDF")
+## 3. [Battery Impedance Machine Learning Experiment Report](https://b03701244.github.io/Portfolio/ML/Batt_Impedance_Report.html)
 **Machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest**
 * R Markdown presentation
 * Main packages used: ggplot2, tidyverse, caret
