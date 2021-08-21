@@ -1,8 +1,9 @@
 # Data Analytics Projects
 
-## 1. [End Customer backlog Report](End_Customer_Backlog/R_Visualizations.pdf "ECBL PDF")
+## 1. [End Customer backlog Report](https://b03701244.github.io/Portfolio//End_Customer_Backlog//MORRIHAN_2021-08-21.html)
 **Exploratory and descriptive analysis between end customer backlog and ADI backlog**
 * R Markdown (Slidy Presentation)
+* Used only one distributor in report as sample
 * Main packages used: ggplot2, tidyverse
 
 ## 2. [Pipeline to Revenue Linear Regression Model](Pipeline_Revenue_Regression/Reg_Report.pdf "Regression Report PDF")
