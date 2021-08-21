@@ -22,8 +22,9 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 * Python Selenium is used daily to export files from QlikView Portal
 * Dashboards only show 3 of all 27 pages (including tooltips) of Power BI data
 
-## 5.[Machine Tools as Market Benchmark Report](https://b03701244.github.io/Portfolio/Benchmark/Report.html) - Web Scraping, Analytics, and Visualizations
-*  (Ongoing Project)
+## 5.[Machine Tools & Revenue](https://b03701244.github.io/Portfolio/Benchmark/Report.html)
+Web Scraping, Analytics, and Visualizations
+* (Ongoing Project)
 * Comparing Asia Pacific's revenue to Taiwan Machine Tools Export
 * Main packages used: rvest, tidyverse
 
