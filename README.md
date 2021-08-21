@@ -5,11 +5,13 @@
 * R Markdown (Slidy Presentation)
 * Used only one distributor in report as sample
 * Main packages used: ggplot2, tidyverse
+* Sensitive information excluded from folder
 
 ## 2. [Pipeline to Revenue Linear Regression Model](Pipeline_Revenue_Regression/Reg_Report.pdf "Regression Report PDF")
 **A linear regression model to find out relationships between revenue and sales members' estimated PAV (Peak Annual Value) per opportunity, as well as other variables**
 * R Markdown presentation
 * Main packages used: ggplot2, tidyverse
+* Sensitive information excluded from folder
 
 ## 3. [Battery Impedance Machine Learning Experiment Report](ML/Battery_Models.pdf "ML PDF")
 **Machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest**
