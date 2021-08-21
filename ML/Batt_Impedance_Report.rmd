@@ -1,9 +1,9 @@
 ---
 title: "Battery Impedance Models"
-output: rmarkdown::github_document
+output: html_document
 ---
 
-```{r data, include=FALSE}
+```{r data, include=T, message=F}
 library(readr)
 library(tidyverse)
 library(caret)
@@ -23,18 +23,18 @@ train_set <- dat[-test_index, ]
 
 ## Our partial data looks like this:
 
-```{r head, echo = F, include = T}
+```{r head, echo = F, include = T, message=F}
 head(dat)
 ```
 
 ## Summary of data:
-```{r summary, echo = F, include = T}
+```{r summary, echo = F, include = T, message=F}
 summary(dat)
 ```
 
 ## Plot of data:
 
-```{r plot, echo=F, include =T}
+```{r plot, echo=F, include =T, message=F}
 dat.plot <- test_set %>%
   ggplot(aes(Real, image, color = Type)) + geom_point() +
   ggtitle("Battery Impedance Test Plot") + ylab("Imaginary Part") + xlab("Real Part")
@@ -45,7 +45,7 @@ dat.plot
 
 1. KNN
 
-```{r knn, echo = T, include = T}
+```{r knn, echo = T, include = T, message=F}
 train_knn <- train(Type ~ ., method = "knn", data = train_set)
 y_hat_knn <- predict(train_knn, test_set, type = "raw")
 confusionMatrix(y_hat_knn, test_set$Type)
@@ -54,14 +54,14 @@ confusionMatrix(y_hat_knn, test_set$Type)
 Testing set accuracy as reference: `r confusionMatrix(y_hat_knn, train_set$Type)$overall[["Accuracy"]]`
 
 2. GLM
-```{r glm, echo = T, include = T}
+```{r glm, echo = T, include = T, message=F}
 logistic <-  train(Type ~ ., method = "glm", data = train_set)
 log_y_hat <- predict(logistic, test_set)
 confusionMatrix(log_y_hat, test_set$Type)
 ```
 
 3. Random Forest
-```{r rf, echo = T, include = T}
+```{r rf, echo = T, include = T, message=F}
 #random forest
 library(randomForest)
 train_rf <- train(Type ~ ., data=train_set, method = "rf")
@@ -69,7 +69,7 @@ y_hat_rf <- predict(train_rf, test_set)
 confusionMatrix(y_hat_rf, test_set$Type)
 ```
 
-```{r comparison, echo = T, include = T}
+```{r comparison, echo = T, include = T, message=F}
 results <- resamples(list(KNN=train_knn, GLM=logistic, RandomForest=train_rf))
 # summarize the distributions
 summary(results)
