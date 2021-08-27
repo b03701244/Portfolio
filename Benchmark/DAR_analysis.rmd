@@ -1,0 +1,69 @@
+---
+title: "DAR Revenue Time Series and Forecast Analysis"
+output: html_document
+author: Hilary Lai
+---
+
+## Creating Time Series Dataset
+
+```{r dataset, include=T, warning=F, message=F}
+#exclude most recent values
+dar <- read_csv("C:\\Users\\hlai\\Analog Devices, Inc\\APR-Data-Team - Power BI Development\\Project\\revenue\\dar_revenue.csv") %>%
+  .[-1,]
+dar$Revenue <- gsub("[],\\)]", "",dar$Revenue)
+dar$Revenue <- gsub("^\\(", "-",dar$Revenue)
+dar$Revenue <- gsub("\\$", "",dar$Revenue) %>% as.numeric()
+
+dar.ts <- ts(darwk[,2], start = c(min(darwk$Fiscal_Wk)%/%100+min(darwk$Fiscal_Wk)%%100/52), frequency=52)
+```
+
+## Plotting Time Series
+
+```{r plot}
+autoplot(dar.ts)+ggtitle("Time Series Plot") +
+  xlab("Fiscal Week") + ylab("DAR Revenue")
+```
+
+## Fitting ARIMA Model,Calculating Accuracy, and Forecast Values
+
+```{r arima, include=T, warning=F, message=F}
+#fitting auto arima
+fit <- auto.arima(dar.ts)
+fc <- forecast(fit, h=13)
+autoplot(fc)+
+  xlab("Fiscal Week") + ylab("DAR Revenue")
+#get accuracy and forecast
+summary(fc)
+```
+
+## Decomposition for Dar Revenue
+
+```{r dec}
+plot(decompose(dar.ts[,1]))
+```
+
+## Find Monthly Trend (Fiscal Month)
+
+```{r trend, include=T, warning=F, message=F}
+#join calendar to get fiscal qtr
+cal <- read_csv("C:\\Users\\hlai\\Analog Devices, Inc\\APR-Data-Team - Power BI Development\\Project\\master_data\\Calendar_Week.csv") %>%
+  .[-1,-6]
+
+darmth <- dar %>%
+  left_join(cal[,c(1:2)]) %>%
+  mutate(FM = ceiling(Fiscal_Wk%%100 * 1/52 * 12)+Fiscal_Wk%/%100*100) %>%
+  group_by(FM) %>%
+  summarise(Revenue = sum(Revenue)) %>%
+  filter(FM != max(FM)) %>%
+  arrange(FM)
+
+darmth.ts <- ts(darmth[,2], start = c(min(darmth$FM)%/%100+min(darmth$FM)%%100/12), frequency=12)
+darmth.all <- darmth %>%
+  mutate(FM=FM%%100) %>%
+  group_by(FM)%>%
+  summarise(Revenue = sum(Revenue))
+darmth.all.ts <- ts(darmth.all[,2], start = c(min(darmth.all$FM)%/%100+min(darmth.all$FM)%%100/12), frequency=12)
+
+ggseasonplot(darmth.ts) + ggtitle("Revenue Montly Trend: Linear Time View (Fiscal Month)")
+ggseasonplot(darmth.ts, polar = T) + ggtitle("Revenue Montly Trend: Polar View (Fiscal Month)")
+```
