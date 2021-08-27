@@ -25,11 +25,17 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 * Python Selenium is used daily to export files from QlikView Portal
 * Dashboards only show 3 of all 27 pages (including tooltips) of Power BI data
 
-## 5.[Machine Tools & Revenue Report](https://b03701244.github.io/Portfolio/Benchmark/Report.html)
-**Web Scraping, Analytics, and Visualizations**
-* (Ongoing Project)
+## 5. Market Benchmark Analytics
+**Web Scraping, Time Series, and Forecast Analytics**
+### 5-1. [Machine Tools Export & Revenue Report](https://b03701244.github.io/Portfolio/Benchmark/MT_Report.html)
 * Comparing Asia Pacific's revenue to Taiwan Machine Tools Export
 * Main packages used: rvest, tidyverse
+### 5-2. [Asia Pacific Manufacturing PMI Report](https://b03701244.github.io/Portfolio/Benchmark/PMI_Report.html)
+* Asia Pacific PMI Visualization and Forecast
+* Main packages used: forecast, tidyverse, ggplot2
+### 5-3. [Revenue Forecast Analytics Report](https://b03701244.github.io/Portfolio/Benchmark/DAR_analysis.html)
+* Time series ARIMA model and plotting
+* Main packages used: forecast, tidyverse, ggplot2
 
 # Personal Projects
 ## a. [Philosophy Word Cloud Report](https://b03701244.github.io/Portfolio/Philo_Scraping/Philo_Report.html)
