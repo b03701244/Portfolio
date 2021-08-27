@@ -1,17 +1,17 @@
 # Data Analytics Projects
 
+*Multiple data sources are excluded in the repository for information security.*
+
 ## 1. [End Customer backlog Report](https://b03701244.github.io/Portfolio//End_Customer_Backlog//MORRIHAN_2021-08-21.html)
 **Exploratory and descriptive analysis between end customer backlog and ADI backlog**
 * R Markdown (Slidy Presentation)
 * Used only one distributor in report as sample
 * Main packages used: ggplot2, tidyverse
-* Sensitive information excluded from folder
 
 ## 2. [Pipeline to Revenue Linear Regression Model](https://b03701244.github.io/Portfolio/Pipeline_Revenue_Regression/Reg_Report.html)
 **A linear regression model to find out relationships between revenue and sales members' estimated PAV (Peak Annual Value) per opportunity, as well as other variables**
 * R Markdown presentation
 * Main packages used: ggplot2, tidyverse
-* Sensitive information excluded from folder
 
 ## 3. [Battery Impedance Machine Learning Experiment Report](https://b03701244.github.io/Portfolio/ML/Batt_Impedance_Report.html)
 **Machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest**
