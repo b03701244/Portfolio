@@ -28,6 +28,7 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 ## 5. Market Benchmark Analytics
 **Web Scraping, Time Series, and Forecast Analytics**
 ### 5-1. [Machine Tools Export & Revenue Report](https://b03701244.github.io/Portfolio/Benchmark/MT_Report.html)
+* 5-1.1 [Shiny App for Segment Analysis](https://hilary-lai.shinyapps.io/MTSegAnalysis/)
 * Comparing Asia Pacific's revenue to Taiwan Machine Tools Export
 * Main packages used: rvest, tidyverse
 ### 5-2. [Asia Pacific Manufacturing PMI Report](https://b03701244.github.io/Portfolio/Benchmark/PMI_Report.html)
