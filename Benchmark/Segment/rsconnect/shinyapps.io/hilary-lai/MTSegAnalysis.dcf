@@ -1,0 +1,13 @@
+name: MTSegAnalysis
+title: MTSegAnalysis
+username:
+account: hilary-lai
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4591453
+bundleId: 4999201
+url: https://hilary-lai.shinyapps.io/MTSegAnalysis/
+when: 1630741584.43905
+lastSyncTime: 1630741584.43905
+asMultiple: FALSE
+asStatic: FALSE
