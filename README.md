@@ -1,6 +1,7 @@
 # Data Analytics Projects
 
 *Multiple data sources are excluded in the repository for information security.*
+
 *Ordered by latest to oldest*
 
 ## Market Benchmark Analytics
