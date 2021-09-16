@@ -1,0 +1,206 @@
+---
+title: "Vector Autoregression Time Series with WSTS Analog and ADI Revenue"
+author: "Hilary Lai"
+date: "`r Sys.Date()`"
+output: rmdformats::downcute
+---
+
+## Objective: Find out relationships with WSTS analog semiconductor revenue and ADI revenue as well as make predictions.
+
+## Method: Vector Autoregression Model (VAR)
+Christopher Sims proposed the Vector Autoregression which is a multivariate linear time series model
+
+## Data source:
+
+* WSTS for analog semiconductor
+* ADI revenue (labeled as "Revenue" in the model)
+* OECD Unemployment rate
+
+## 1. Preparing the dataset
+
+```{r setup, include=T, echo=T, message=F, warning=F}
+library(tidyverse)
+library(readr)
+library(janitor)
+library(ggplot2)
+library(ggfortify)
+library(TTR)
+library(forecast)
+library(fable)
+library(vars)
+library(tseries)
+library(MTS)
+
+ana <- read_csv("Analog_Semi_WSTS.csv")
+ana <- clean_names(ana[-c(1,2,4),-c(2,5,10,12,14)]) %>%
+  row_to_names(1)
+#calendar month
+colnames(ana)[c(1,8,9)] <- c("CM", "GENERAL PURPOSE ANALOG","APPLICATION SPECIFIC ANALOG")
+ana <- sapply(ana, as.numeric) %>%
+  as.data.frame()
+
+#get revenue
+#exclude most recent values
+dar <- read_csv("DAR_6yrs.csv") %>%
+  .[-1,]
+dar$Revenue <- gsub("[],\\)]", "",dar$Revenue)
+dar$Revenue <- gsub("^\\(", "-",dar$Revenue)
+dar$Revenue <- gsub("\\$", "",dar$Revenue) %>% as.numeric()
+
+#get cal to join fiscal month
+#join calendar to get fiscal qtr
+cal <- read_csv("C:\\Users\\hlai\\Analog Devices, Inc\\APR-Data-Team - Power BI Development\\Project\\master_data\\Calendar_Week.csv") %>%
+  .[-1,-6]
+
+dar <- dar %>%
+  left_join(cal[,c(1:2)]) %>%
+  mutate(FM = ceiling(Fiscal_Wk%%100 * 1/52 * 12)+Fiscal_Wk%/%100*100) %>%
+  dplyr::group_by(FM) %>%
+  summarise(Revenue = sum(Revenue)) %>%
+  filter(FM != max(FM)) %>%
+  arrange(FM)
+
+dar <- dar %>%
+  mutate(Revenue = Revenue/100,
+         CM = ifelse(
+           FM%%100 < 3, (FM%/%100 - 1) * 100 + (FM%%100+10),
+           (FM%/%100) * 100 + (FM%%100-2)
+         ))
+dar <- dar[dar$FM!=201813,]
+
+df <- ana %>%
+  left_join(dar)%>%na.omit %>% as.data.frame()
+
+lineplot <- df %>% .[,-10] %>%
+  gather(Type, Value, AM:Revenue) %>%
+  ggplot() +
+  geom_line(aes(x=factor(CM), y=Value, color=Type, group=Type)) +
+  xlab("Calendar Month")+ 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+## 2. Line Plot for all region revenue with ADI revenue
+
+```{r, include=T, echo=T, message=F, warning=F}
+lineplot
+```
+
+## 3. Univariate Time Series Model with only WW data
+
+```{r, include=T, echo=T, message=F, warning=F}
+library(knitr)
+#read unemployment
+em <- read_csv("Unemploy.csv")[,c(9,17)]
+em <- em[-nrow(em),]
+colnames(em)[2] <- "UnEmploy"
+
+#adding unemployment rate to the model
+df <- cbind(df, em[,2])
+
+#time series analysis
+ana.ts <- ts(df[,c(6,7,11,12)] %>% na.omit(), start = c(2014,11),frequency = 12)
+plot(ana.ts, ann=FALSE); title(main = "Semiconductor Revenue, ADI Revenue, and Unemployment Rate Time Series")
+
+fitww <- auto.arima(ana.ts[,2])
+fcww <- forecast(fitww, h=12)
+```
+
+Model Summary: 
+
+```{r, include=T, echo=T, message=F, warning=F}
+summary(fitww)
+```
+
+Plotting forecast data:
+
+```{r, include=T, echo=T, message=F, warning=F}
+autoplot(fcww)
+```
+
+Forecast for the next 12 months:
+
+```{r, include=T, echo=T, message=F, warning=F}
+kable(fcww)
+```
+
+## 4. Multivariate Time Series Model with Vector Autoregression (VAR)
+
+For this model, I will be only using **AP & WW Semi** data, and employing unemployment rate.
+
+4-1. Selecting lag for the model
+
+```{r, include=T, echo=T, message=F, warning=F }
+VARselect(ana.ts, lag.max=8,
+          type="const")[["selection"]]
+```
+
+Staring with lag = 3, and try the serial test
+
+```{r, include=T, echo=T, message=F, warning=F}
+var1 <- vars::VAR(ana.ts, p=3, type="trend")
+serial.test(var1, lags.pt=10, type="PT.asymptotic")
+```
+
+4-2. Serial test failed (p value < 0.05), try lag = 4 instead:
+
+```{r, include=T, echo=T, message=F, warning=F}
+var2 <- vars::VAR(ana.ts, p=4, type="trend")
+serial.test(var2, lags.pt=10, type="PT.asymptotic")
+```
+
+Serial test succeeded, now I can use the second model and get the summary.
+
+Model summary:
+
+```{r, include=T, echo=T, message=F, warning=F}
+modelsumm <- summary(var2)
+modelsumm
+```
+
+## 5. Forecast with the VAR Model
+
+```{r, include=T, echo=T, message=F, warning=F }
+fcst.plot <- autoplot(forecast(var2)) +
+  ggtitle("Time Series Plot of the stationary Time-Series")
+fcst.plot
+```
+
+Predictions for the next 12 months:
+
+```{r, include=T, echo=T, message=F, warning=F}
+pred <- predict(var2, n.ahead = 12)
+pred
+```
+## 6. Lastly, I test the model's Granger causality, normality, and stability
+
+Note that I have already conducted a serial test, so I will skip that for now. First, I try and see if unemployment Granger causes the other variables:
+
+```{r, include=T, echo=T, message=F, warning=F }
+causality(var2, cause = "UnEmploy")$Granger
+```
+
+As shown, I can reject the null hypothesis, concluding that unemployment rate does Granger causes other variables.
+
+Next, I check for heterostochasity:
+
+```{r, include=T, echo=T, message=F, warning=F }
+arch.test(var2, lags.multi = 10, multivariate.only = TRUE)
+```
+
+Test succeeded.
+
+Normality test:
+
+```{r, include=T, echo=T, message=F, warning=F}
+normality.test(var2, multivariate.only = TRUE)
+```
+
+Failed, the model did not pass normality test for residuals.
+
+Stability test:
+
+```{r, include=T, echo=T, message=F, warning=F, fig.height = 12}
+stability(var2, type="OLS-CUSUM") %>% plot
+```
+
+Succeeded. The model is stable.
