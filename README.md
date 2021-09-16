@@ -37,6 +37,9 @@ b. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/Power
 ### 5-3. [Revenue Forecast Analytics Report](https://b03701244.github.io/Portfolio/Benchmark/DAR_analysis.html)
 * Time series ARIMA model and plotting
 * Main packages used: forecast, tidyverse, ggplot2
+### 5-4. [Vector Autoregression Time Series Model](https://b03701244.github.io/Portfolio/Benchmark/wsts.html)
+* Multivariate Time series VAR model and plotting
+* Main packages used: ggplot2, vars, mts, forecast
 
 # Personal Projects
 ## a. [Philosophy Word Cloud Report](https://b03701244.github.io/Portfolio/Philo_Scraping/Philo_Report.html)
