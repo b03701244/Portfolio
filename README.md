@@ -22,10 +22,11 @@
 
 ## Power BI Dashboards for Management
 1.1.  [Data Model Screenshot](PowerBI_Management/Data_Model.png "DM Png")
+
 1.2. [Dashboards Screenshot](https://github.com/b03701244/Portfolio/raw/main/PowerBI_Management/PowerBI_Management.pdf "PBI PDF")
+
 * **Tooltips are shown starting from p. 9. In practice, they are only visible when users hover over visuals**
 * Python Selenium is used daily to export files from QlikView Portal
-* Dashboards only show 3 of all 27 pages (including tooltips) of Power BI data
 
 ## [Battery Impedance Machine Learning Experiment Report](https://b03701244.github.io/Portfolio/ML/Batt_Impedance_Report.html)
 **Machine learning algorithms for BMS using the impedance test with KNN, GLM, and Random Forest**
